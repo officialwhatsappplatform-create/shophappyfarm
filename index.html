@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1769e0">
+<title>🛒 متجر المزرعة السعيدة</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#1769e0;--deep:#0b3f91;--line:#c9ddfb;--ink:#17345d;--muted:#6680a4}
+body{margin:0;font-family:system-ui,Tahoma;background:linear-gradient(145deg,#d8ebff 0%,#f5f9ff 48%,#b9d8ff 100%);color:var(--ink);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer;border:0;border-radius:13px;padding:11px 16px;font-weight:850;background:linear-gradient(135deg,#2785ff,#1456c7);color:#fff;box-shadow:0 4px 10px #155ac522;transition:transform .12s}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.6;cursor:wait}
+button.alt{background:#fff;color:#1456a8;border:1px solid #bdd5fa;box-shadow:none}
+button.green{background:linear-gradient(135deg,#2eb14b,#1a7d33)}
+button.red{background:linear-gradient(135deg,#e53935,#b71c1c)}
+input,select{width:100%;padding:13px 14px;border:1.5px solid #c9ddf8;border-radius:13px;background:#f8fbff;color:#153b70;outline:none}
+input:focus,select:focus{border-color:#2785ff;box-shadow:0 0 0 4px #2785ff1c}
+
+.screen{position:fixed;inset:0;z-index:10;background:linear-gradient(145deg,#073f92f2,#1675dff2 55%,#55a5ffef);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow:auto}
+.screen.on{display:flex}
+.box{background:#fff;border:1px solid #d8e8ff;box-shadow:0 24px 80px #00285c55;border-radius:26px;padding:24px;width:min(560px,100%);margin:auto}
+h1{margin:0 0 6px;text-align:center;color:#104a9d;font-size:26px}
+.sub{text-align:center;color:#607da6;font-size:14px;line-height:1.7;margin:0 0 20px}
+label{display:block;font-weight:800;color:#244f88;font-size:14px;margin:0 0 5px}
+.field{margin:0 0 14px}
+
+#app{display:none}
+header{background:#f7fbffed;backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 18px;position:sticky;top:0;z-index:3}
+.logo{font-weight:950;color:#1456b8;font-size:17px}
+.pill{background:#fff;border:1px solid var(--line);border-radius:30px;padding:7px 13px;font-weight:850;color:#174b91;font-size:13px}
+.spacer{flex:1}
+main{padding:18px;max-width:1100px;margin:0 auto}
+h2.section{color:#104a9d;margin:22px 0 12px;font-size:19px;text-align:right}
+#packs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.pack{background:#fff;border:2px solid #d5e5fb;border-radius:16px;padding:14px;text-align:center;cursor:pointer;transition:.15s;box-shadow:0 4px 12px #1d5eb00c}
+.pack:hover{border-color:#2785ff;transform:translateY(-3px);box-shadow:0 10px 22px #2785ff22}
+.pack.sel{border-color:#2eb14b;background:#f0fff4;box-shadow:0 0 0 3px #2eb14b33}
+.pack .emoji{font-size:44px;line-height:1;margin-bottom:8px}
+.pack .name{font-weight:900;color:#174b91;font-size:15px;margin-bottom:3px}
+.pack .desc{font-size:12px;color:var(--muted);margin-bottom:9px;min-height:16px}
+.pack .price{font-weight:950;color:#b8860b;font-size:18px;background:#fff4d6;border-radius:99px;padding:5px 12px;display:inline-block}
+.pack .price small{font-size:11px;opacity:.7;font-weight:700}
+
+#orderBox{background:#fff;border:1px solid #d8e8ff;border-radius:18px;padding:18px;margin-top:18px;box-shadow:0 8px 26px #1d5eb00f}
+#orderBox h3{margin:0 0 12px;color:#104a9d;font-size:17px}
+.payInfo{background:linear-gradient(135deg,#fff7e0,#ffeab5);border:2px dashed #e6a100;border-radius:14px;padding:14px;margin:12px 0;text-align:center}
+.payInfo .big{font-size:26px;font-weight:950;color:#a85c00;letter-spacing:1px;direction:ltr;margin:6px 0}
+.payInfo .label{font-size:13px;color:#7a5310;font-weight:800}
+.payInfo .orange{display:inline-block;background:#ff7900;color:#fff;padding:3px 12px;border-radius:99px;font-weight:900;font-size:13px;margin-top:6px}
+
+#orders{display:flex;flex-direction:column;gap:11px}
+.order{background:#fff;border:1.5px solid #d5e5fb;border-radius:15px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.order.pending{border-color:#ffb300;background:linear-gradient(145deg,#fffdf5,#fff6dc)}
+.order.approved{border-color:#2eb14b;background:linear-gradient(145deg,#f2fff6,#e2f9e9);opacity:.82}
+.order.rejected{border-color:#e53935;background:linear-gradient(145deg,#fff2f2,#ffe3e3);opacity:.72}
+.order .top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.order .who{font-weight:900;color:#174b91;font-size:15px}
+.order .status{font-size:12px;font-weight:900;padding:4px 11px;border-radius:99px}
+.status.pending{background:#fff3cd;color:#8a5a00}
+.status.approved{background:#d3f5dc;color:#1a7d33}
+.status.rejected{background:#ffd6d6;color:#b71c1c}
+.order .details{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;font-size:13px}
+.order .details div{background:#f4f8ff;border-radius:10px;padding:8px 10px}
+.order .details b{color:#5a4321;display:block;font-size:11px;margin-bottom:3px;font-weight:800;color:#8a7c5c}
+.order .details span{color:#17345d;font-weight:800;direction:ltr;display:inline-block}
+.order .actions{display:flex;gap:8px;flex-wrap:wrap}
+.order .actions button{flex:1;min-width:110px;padding:10px 14px}
+
+.empty{text-align:center;color:#8aa0c0;padding:44px 12px;font-weight:800;background:#fff;border-radius:18px}
+.empty .big{font-size:56px;margin-bottom:10px;opacity:.5}
+
+.toast{position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);background:#103d79;color:white;padding:12px 20px;border-radius:99px;opacity:0;pointer-events:none;transition:.22s;max-width:90vw;box-shadow:0 8px 24px #00285c33;font-weight:800}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(-3px)}
+
+.note{background:#eaf3ff;border-right:4px solid #2785ff;padding:11px 14px;border-radius:10px;font-size:13px;color:#315a91;line-height:1.7;margin:14px 0}
+.warn{background:#fff4d6;border-right-color:#e6a100;color:#7a5310}
+
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1}
+.tabs button.on{background:linear-gradient(135deg,#2785ff,#1456c7);color:#fff}
+
+@media(max-width:600px){
+  main{padding:12px}
+  #packs{grid-template-columns:repeat(2,1fr);gap:9px}
+  .pack{padding:11px}
+  .pack .emoji{font-size:34px}
+  header{padding:10px}
+  .logo{width:100%;font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ شاشة تسجيل الدخول ============ -->
+<div id="auth" class="screen on">
+  <div class="box">
+    <h1>🛒 متجر المزرعة السعيدة</h1>
+    <p class="sub">اشترِ عملات وبذور وبيض وحيوانات<br>وسيتم إرسالها لحسابك في اللعبة</p>
+    <label>اسم المستخدم في اللعبة</label>
+    <input id="username" class="field" type="text" maxlength="20" placeholder="نفس اسمك في المزرعة" autocomplete="username">
+    <label>كلمة المرور</label>
+    <input id="password" class="field" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <button id="loginBtn" style="min-height:48px">تسجيل الدخول</button>
+      <button id="registerBtn" class="alt" style="min-height:48px">إنشاء حساب جديد</button>
+    </div>
+    <div id="authMsg" class="note warn" style="display:none"></div>
+    <div class="note">
+      💡 <b>ملاحظة:</b> استخدم نفس اسم المستخدم وكلمة المرور اللي بتلعب بيهم في المزرعة عشان نقدر نرسل لك المشتريات.
+    </div>
+  </div>
+</div>
+
+<!-- ============ صفحة اللاعب ============ -->
+<div id="app">
+  <header>
+    <div class="logo">🛒 متجر المزرعة السعيدة</div>
+    <div class="pill">👤 <span id="who"></span></div>
+    <div class="spacer"></div>
+    <button id="refreshBtn" class="alt">🔄 تحديث</button>
+    <button id="logoutBtn" class="alt">خروج</button>
+  </header>
+  <main>
+    <h2 class="section">🎁 اختر الباقة</h2>
+    <div id="packs"></div>
+
+    <div id="orderBox" style="display:none">
+      <h3>📝 إتمام الطلب</h3>
+      <div class="payInfo">
+        <div class="label">حوّل المبلغ على رقم</div>
+        <div class="big">0128186150</div>
+        <div class="label">ثم ارجع هنا واكتب رقمك واضغط إرسال</div>
+        <span class="orange">ORANGE CASH</span>
+      </div>
+      <label>رقم الهاتف الذي حوّلت منه</label>
+      <input id="phone" class="field" type="tel" placeholder="01XXXXXXXXX" style="direction:ltr;text-align:center;font-size:17px;letter-spacing:1px">
+      <button id="sendOrder" style="width:100%;min-height:48px">📤 إرسال الطلب للمراجعة</button>
+      <div class="note">
+        ⏳ بعد الإرسال، هيتم مراجعة الطلب يدويًا ثم إرسال المشتريات لصندوق البريد في اللعبة خلال دقائق.
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ لوحة الأدمن ============ -->
+<div id="adminPanel" class="screen">
+  <div class="box" style="width:min(900px,100%)">
+    <h1>👑 لوحة التحكم — الطلبات</h1>
+    <p class="sub">راجع التحويلات واقبل أو ارفض كل طلب</p>
+    <div class="tabs">
+      <button id="tabPending" class="on">⏳ قيد المراجعة (<span id="cntPending">0</span>)</button>
+      <button id="tabAll" class="alt">📋 كل الطلبات</button>
+      <button id="tabLogout" class="alt">🚪 خروج</button>
+    </div>
+    <div id="orders"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script>
+/* =========================================================
+   Firebase — نفس بيانات اللعبة
+   ========================================================= */
+const config={
+  apiKey:"AIzaSyDOp0ak_6s3NejZa0M-nkph3cfdK1x5Zjw",
+  authDomain:"gegesos.firebaseapp.com",
+  databaseURL:"https://gegesos-default-rtdb.firebaseio.com",
+  projectId:"gegesos",
+  storageBucket:"gegesos.firebasestorage.app",
+  messagingSenderId:"188381283022",
+  appId:"1:188381283022:web:957493867c80285d08c69f"
+};
+firebase.initializeApp(config);
+const auth=firebase.auth();
+const db=firebase.database();
+const $=id=>document.getElementById(id);
+
+/* =========================================================
+   حساب المطور السري — مقسّم لأجزاء
+   ========================================================= */
+const _A1='ad', _A2='min';
+const ADMIN_USER=_A1+_A2;              // admin
+const ADMIN_PASS=_A1+_A2;              // admin
+
+/* =========================================================
+   الباقات
+   ========================================================= */
+const PACKAGES=[
+  // ==== عملات ====
+  {id:'c1',  type:'coins', name:'1,000 عملة',      emoji:'🪙',  price:10,  amount:1000,  desc:'بداية سريعة'},
+  {id:'c2',  type:'coins', name:'5,000 عملة',      emoji:'🪙',  price:45,  amount:5000,  desc:'+ بونص صغير'},
+  {id:'c3',  type:'coins', name:'15,000 عملة',     emoji:'💰',  price:120, amount:15000, desc:'الأكثر طلبًا'},
+  {id:'c4',  type:'coins', name:'50,000 عملة',     emoji:'💎',  price:350, amount:50000, desc:'قيمة ممتازة'},
+  {id:'c5',  type:'coins', name:'200,000 عملة',    emoji:'🏆',  price:1200,amount:200000,desc:'للمحترفين'},
+
+  // ==== بيض ====
+  {id:'e1',  type:'egg',   name:'بيضة نادرة',       emoji:'🥚',  price:25,  amount:1, itemId:'rare',   desc:'كلب/قط/بومة/باندا'},
+  {id:'e2',  type:'egg',   name:'بيضة ملحمية',      emoji:'🥚',  price:80,  amount:1, itemId:'epic',   desc:'أسد/نمر/ذئب/يونيكورن'},
+  {id:'e3',  type:'egg',   name:'بيضة أسطورية',     emoji:'🥚',  price:250, amount:1, itemId:'legend', desc:'تنين/عنقاء/فضائي/شبح'},
+
+  // ==== بذور ====
+  {id:'s1',  type:'seed',  name:'3× فاكهة التنين',  emoji:'🐉',  price:60,  amount:3, itemId:'dragon', desc:'نمو 95 ثانية'},
+  {id:'s2',  type:'seed',  name:'3× زهرة القمر',    emoji:'🌙',  price:150, amount:3, itemId:'moon',   desc:'نمو 130 ثانية'},
+  {id:'s3',  type:'seed',  name:'3× توت الفراغ',    emoji:'🪐',  price:400, amount:3, itemId:'void',   desc:'الأغلى بيعًا'},
+];
+
+let user=null, isAdmin=false, selectedPack=null, adminFilter='pending', ordersRef=null;
+
+/* =========================================================
+   أدوات
+   ========================================================= */
+function toast(t){$('toast').textContent=t;$('toast').classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(()=>$('toast').classList.remove('on'),2600)}
+function showMsg(el,txt){el.textContent=txt;el.style.display='block'}
+function hideMsg(el){el.style.display='none'}
+function norm(v){return (v||'').trim().toLowerCase()}
+function validUser(v){return /^[a-zA-Z0-9_.-]{3,20}$/.test(v)}
+function userEmail(u){return norm(u)+'@farm.gegesos.com'}
+function fmt(n){return Math.floor(n).toLocaleString('en-US')}
+
+/* =========================================================
+   الدخول
+   ========================================================= */
+$('loginBtn').onclick=async()=>{
+  const u=norm($('username').value);
+  const p=$('password').value;
+  const m=$('authMsg');hideMsg(m);
+
+  if(!u||!p){return toast('اكتب اسم المستخدم وكلمة المرور')}
+
+  // 👑 حساب المطور
+  if(u===ADMIN_USER && p===ADMIN_PASS){
+    isAdmin=true;user=null;
+    $('auth').classList.remove('on');
+    $('app').style.display='none';
+    $('adminPanel').classList.add('on');
+    loadOrders();
+    toast('مرحبًا أيها المطور 👑');
+    return;
+  }
+
+  if(!validUser(u)){return showMsg(m,'اسم المستخدم من 3 إلى 20 حرفًا إنجليزيًا أو رقمًا')}
+
+  $('loginBtn').disabled=true;$('loginBtn').textContent='جاري الدخول...';
+  try{
+    await auth.signInWithEmailAndPassword(userEmail(u),p);
+  }catch(e){
+    showMsg(m,'❌ '+errMsg(e));
+    toast('فشل الدخول');
+  }finally{
+    $('loginBtn').disabled=false;$('loginBtn').textContent='تسجيل الدخول';
+  }
+};
+
+$('registerBtn').onclick=async()=>{
+  const u=norm($('username').value);
+  const p=$('password').value;
+  const m=$('authMsg');hideMsg(m);
+
+  if(!validUser(u)){return showMsg(m,'اسم المستخدم من 3 إلى 20 حرفًا إنجليزيًا')}
+  if(p.length<6){return showMsg(m,'كلمة المرور 6 أحرف على الأقل')}
+  if(u===ADMIN_USER){return showMsg(m,'هذا الاسم محجوز')}
+
+  $('registerBtn').disabled=true;$('registerBtn').textContent='جاري الإنشاء...';
+  try{
+    await auth.createUserWithEmailAndPassword(userEmail(u),p);
+    toast('تم إنشاء الحساب ✅');
+  }catch(e){
+    showMsg(m,'❌ '+errMsg(e));
+  }finally{
+    $('registerBtn').disabled=false;$('registerBtn').textContent='إنشاء حساب جديد';
+  }
+};
+
+function errMsg(e){
+  const c=e?.code||'';
+  if(c.includes('email-already'))return 'اسم المستخدم محجوز';
+  if(c.includes('invalid-credential')||c.includes('wrong-password')||c.includes('user-not-found'))return 'اسم المستخدم أو كلمة المرور غير صحيحة';
+  if(c.includes('weak-password'))return 'كلمة المرور ضعيفة';
+  if(c.includes('network'))return 'تحقق من الإنترنت';
+  if(c.includes('too-many-requests'))return 'محاولات كثيرة، انتظر قليلًا';
+  return e?.message||'خطأ';
+}
+
+auth.onAuthStateChanged(u=>{
+  if(u){
+    user=u;
+    const name=u.email.split('@')[0];
+    $('who').textContent=name;
+    $('auth').classList.remove('on');
+    $('adminPanel').classList.remove('on');
+    $('app').style.display='block';
+    renderPacks();
+  }else{
+    if(!isAdmin){
+      user=null;
+      $('app').style.display='none';
+      $('adminPanel').classList.remove('on');
+      $('auth').classList.add('on');
+    }
+  }
+});
+
+$('logoutBtn').onclick=async()=>{
+  await auth.signOut();
+  selectedPack=null;
+  $('username').value='';$('password').value='';
+};
+
+/* =========================================================
+   عرض الباقات
+   ========================================================= */
+function renderPacks(){
+  const wrap=$('packs');wrap.innerHTML='';
+  PACKAGES.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='pack'+(selectedPack?.id===p.id?' sel':'');
+    el.innerHTML=`
+      <div class="emoji">${p.emoji}</div>
+      <div class="name">${p.name}</div>
+      <div class="desc">${p.desc||''}</div>
+      <div class="price">${p.price}<small> ج.م</small></div>
+    `;
+    el.onclick=()=>{
+      selectedPack=p;
+      renderPacks();
+      $('orderBox').style.display='block';
+      $('orderBox').scrollIntoView({behavior:'smooth',block:'center'});
+    };
+    wrap.appendChild(el);
+  });
+}
+
+/* =========================================================
+   إرسال الطلب
+   ========================================================= */
+$('sendOrder').onclick=async()=>{
+  if(!user)return toast('سجّل الدخول أولًا');
+  if(!selectedPack)return toast('اختر باقة أولًا');
+  const phone=$('phone').value.replace(/\D/g,'');
+  if(phone.length<10||phone.length>15)return toast('اكتب رقم هاتف صحيح (مثل 01XXXXXXXXX)');
+
+  $('sendOrder').disabled=true;$('sendOrder').textContent='جاري الإرسال...';
+  try{
+    const orderId='ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    const orderData={
+      uid:user.uid,
+      username:user.email.split('@')[0],
+      packageId:selectedPack.id,
+      packageName:selectedPack.name,
+      packagePrice:selectedPack.price,
+      packageType:selectedPack.type,
+      packageAmount:selectedPack.amount,
+      packageEmoji:selectedPack.emoji,
+      phone:phone,
+      status:'pending',
+      createdAt:Date.now()
+    };
+    // نضيف itemId بس لو موجود
+    if(selectedPack.itemId){
+      orderData.packageItemId=selectedPack.itemId;
+    }
+    await db.ref('orders/'+orderId).set(orderData);
+    toast('✅ تم إرسال الطلب — سيتم المراجعة قريبًا');
+    selectedPack=null;
+    $('phone').value='';
+    $('orderBox').style.display='none';
+    renderPacks();
+  }catch(e){
+    toast('❌ فشل الإرسال: '+(e?.message||'خطأ'));
+  }finally{
+    $('sendOrder').disabled=false;$('sendOrder').textContent='📤 إرسال الطلب للمراجعة';
+  }
+};
+
+$('refreshBtn').onclick=()=>{
+  toast('تم التحديث 🔄');
+  renderPacks();
+};
+
+/* =========================================================
+   لوحة الأدمن
+   ========================================================= */
+function loadOrders(){
+  if(ordersRef)ordersRef.off();
+  ordersRef=db.ref('orders');
+  ordersRef.on('value',snap=>{
+    const data=snap.val()||{};
+    const arr=Object.entries(data).map(([id,v])=>({...v,_id:id}));
+    arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    window._allOrders=arr;
+    renderOrders();
+  },err=>{
+    toast('❌ '+err.message);
+  });
+}
+
+function renderOrders(){
+  const all=window._allOrders||[];
+  const list=adminFilter==='pending'
+    ? all.filter(o=>o.status==='pending')
+    : all;
+
+  $('cntPending').textContent=all.filter(o=>o.status==='pending').length;
+
+  const box=$('orders');box.innerHTML='';
+
+  if(list.length===0){
+    box.innerHTML='<div class="empty"><div class="big">📭</div>لا توجد طلبات '+(adminFilter==='pending'?'قيد المراجعة':'حتى الآن')+'</div>';
+    return;
+  }
+
+  list.forEach(o=>{
+    const el=document.createElement('div');
+    el.className='order '+(o.status||'pending');
+
+    const statusLabel={pending:'⏳ قيد المراجعة',approved:'✅ تم القبول',rejected:'❌ مرفوض'}[o.status]||o.status;
+
+    el.innerHTML=`
+      <div class="top">
+        <div class="who">👤 ${o.username||'—'}</div>
+        <div class="status ${o.status}">${statusLabel}</div>
+      </div>
+      <div class="details">
+        <div><b>الباقة</b><span>${o.packageEmoji||''} ${o.packageName||''}</span></div>
+        <div><b>السعر</b><span>${o.packagePrice||0} ج.م</span></div>
+        <div><b>رقم التحويل</b><span>${o.phone||'—'}</span></div>
+        <div><b>التاريخ</b><span>${new Date(o.createdAt||0).toLocaleString('ar-EG')}</span></div>
+      </div>
+      ${o.status==='pending'?`
+        <div class="actions">
+          <button class="green" data-approve="${o._id}">✅ موافقة وإرسال</button>
+          <button class="red" data-reject="${o._id}">❌ رفض</button>
+        </div>
+      `:''}
+    `;
+    box.appendChild(el);
+  });
+
+  box.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>approveOrder(b.dataset.approve));
+  box.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>rejectOrder(b.dataset.reject));
+}
+
+/* ===== قبول الطلب — ضغطة واحدة ===== */
+async function approveOrder(id){
+  const o=(window._allOrders||[]).find(x=>x._id===id);
+  if(!o)return;
+
+  const btn=document.querySelector(`[data-approve="${id}"]`);
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري...'}
+
+  try{
+    // نبني بيانات الشحنة بدون أي قيمة undefined
+    const mailData={
+      type: o.packageType || 'coins',
+      amount: Math.max(1,Math.floor(+o.packageAmount||1)),
+      title: 'مشترى: '+(o.packageName||'شحنة'),
+      emoji: o.packageEmoji || '🎁',
+      createdAt: Date.now()
+    };
+
+    // نضيف itemId فقط لو موجود (للبذور/البيض/الحيوانات)
+    if(o.packageItemId && o.packageItemId !== 'undefined'){
+      mailData.itemId = o.packageItemId;
+    }
+
+    // 1) نكتب في صندوق بريد اللاعب
+    await db.ref('mailbox/'+o.uid+'/mail_'+o._id).set(mailData);
+
+    // 2) نحدّث حالة الطلب
+    await db.ref('orders/'+o._id).update({
+      status:'approved',
+      processedAt:Date.now(),
+      approvedBy:'admin'
+    });
+
+    toast('✅ تم القبول وإرسال المشتريات للاعب');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='✅ موافقة وإرسال'}
+    toast('❌ فشل: '+(e?.message||'خطأ'));
+  }
+}
+
+/* ===== رفض الطلب — ضغطة واحدة ===== */
+async function rejectOrder(id){
+  const o=(window._allOrders||[]).find(x=>x._id===id);
+  if(!o)return;
+
+  const btn=document.querySelector(`[data-reject="${id}"]`);
+  if(btn){btn.disabled=true;btn.textContent='⏳ جاري...'}
+
+  try{
+    await db.ref('orders/'+o._id).update({
+      status:'rejected',
+      processedAt:Date.now(),
+      rejectedBy:'admin'
+    });
+    toast('تم رفض الطلب');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='❌ رفض'}
+    toast('❌ فشل: '+(e?.message||'خطأ'));
+  }
+}
+
+/* تابات الأدمن */
+$('tabPending').onclick=()=>{
+  adminFilter='pending';
+  $('tabPending').classList.add('on');
+  $('tabAll').classList.remove('on');
+  renderOrders();
+};
+$('tabAll').onclick=()=>{
+  adminFilter='all';
+  $('tabAll').classList.add('on');
+  $('tabPending').classList.remove('on');
+  renderOrders();
+};
+$('tabLogout').onclick=()=>{
+  if(!confirm('خروج من لوحة الأدمن؟'))return;
+  isAdmin=false;
+  if(ordersRef)ordersRef.off();
+  $('adminPanel').classList.remove('on');
+  $('auth').classList.add('on');
+  $('username').value='';$('password').value='';
+};
+</script>
+</body>
+</html>
